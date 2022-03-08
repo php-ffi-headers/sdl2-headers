@@ -20,7 +20,7 @@
     "require": {
         "php": "^8.1",
         "ext-phar": "*",
-        "ffi/preprocessor": "^0.2|^1.0",
+        "ffi/preprocessor": "^0.2.1|^1.0",
         "ffi-libs/headers-contracts": "^1.0"
     },
     "autoload": {
