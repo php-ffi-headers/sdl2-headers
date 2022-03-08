@@ -70,12 +70,37 @@ class SDL2 implements HeaderInterface
     ): self {
         $pre = clone $pre;
 
-        $pre->add('stdint.h', '');
-        $pre->add('stddef.h', '');
+        $pre->define('WINAPI_FAMILY_PARTITION', static fn (string $type) => 0);
+        $pre->define('DECLSPEC', '');
 
         // Remove stdinc and platform headers
-        $pre->add('SDL_stdinc.h', '');
-        $pre->add('SDL_platform.h', '');
+        $pre->add('SDL_stdinc.h', <<<'CPP'
+        #ifndef SDL_stdinc_h_
+            #define SDL_stdinc_h_
+            typedef unsigned short wchar_t;
+
+            typedef enum {
+                SDL_FALSE = 0,
+                SDL_TRUE = 1
+            } SDL_bool;
+
+            typedef int8_t Sint8;
+            typedef uint8_t Uint8;
+            typedef int16_t Sint16;
+            typedef uint16_t Uint16;
+            typedef int32_t Sint32;
+            typedef uint32_t Uint32;
+            typedef int64_t Sint64;
+            typedef uint64_t Uint64;
+
+            #define SDL_PRINTF_FORMAT_STRING
+            #define SDL_SCANF_FORMAT_STRING
+            #define SDL_PRINTF_VARARG_FUNC(x)
+
+            #define SDL_FOURCC(A, B, C, D) (A << 0) | (B << 8) | (C << 16) | (D << 24)
+            #define SDL_COMPILE_TIME_ASSERT(name, x) typedef int SDL_compile_time_assert_##name_stub
+        #endif
+        CPP);
 
         if (!$version instanceof VersionInterface) {
             $version = Version::create($version);
@@ -90,6 +115,68 @@ class SDL2 implements HeaderInterface
      */
     public function __toString(): string
     {
-        return $this->pre->process(new \SplFileInfo($this->getHeaderPathname())) . \PHP_EOL;
+        $result = $this->pre->process(new \SplFileInfo($this->getHeaderPathname())) . \PHP_EOL;
+
+        $result = $this->withoutMainFunction($result);
+        $result = $this->withoutStaticInline($result);
+
+        return $result;
+    }
+
+    /**
+     * @param string $result
+     * @return string
+     */
+    private function withoutMainFunction(string $result): string
+    {
+        $from = [
+            'extern  int SDL_main(int argc, char *argv[]);',
+            'extern   int SDL_main(int argc, char *argv[]);',
+        ];
+
+        return \str_replace($from, '', $result);
+    }
+
+    /**
+     * @param string $result
+     * @return string
+     */
+    private function withoutStaticInline(string $result): string
+    {
+        while (($offset = \strpos($result, 'static inline')) !== false) {
+            $to = $from = $offset;
+            $depth = 0;
+
+            do {
+                switch ($result[$to]) {
+                    case ';':
+                        if ($depth === 0) {
+                            $result = \substr($result, 0, $from)
+                                . \substr($result, $to + 1);
+                            continue 3;
+                        }
+                        break;
+
+                    case '{':
+                        $depth++;
+                        break;
+
+                    case '}':
+                        $depth--;
+                        if ($depth <= 0) {
+                            while ($result[$to + 1] === ';') {
+                                $to++;
+                            }
+
+                            $result = \substr($result, 0, $from)
+                                . \substr($result, $to + 1);
+                            continue 3;
+                        }
+                        break;
+                }
+            } while (isset($result[$to++]));
+        }
+
+        return $result;
     }
 }
