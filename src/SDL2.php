@@ -73,6 +73,10 @@ class SDL2 implements HeaderInterface
         $pre->add('stdint.h', '');
         $pre->add('stddef.h', '');
 
+        // Remove stdinc and platform headers
+        $pre->add('SDL_stdinc.h', '');
+        $pre->add('SDL_platform.h', '');
+
         if (!$version instanceof VersionInterface) {
             $version = Version::create($version);
         }
