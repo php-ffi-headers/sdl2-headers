@@ -142,6 +142,7 @@ class SDL2 implements HeaderInterface
                 $pre->add('AvailabilityMacros.h', '');
                 $pre->add('TargetConditionals.h', '');
                 $pre->add('signal.h', '');
+                $pre->add('libkern/OSAtomic.h', '');
                 break;
 
             case Platform::FREEBSD:
