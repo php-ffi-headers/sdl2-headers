@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace FFI\Headers\SDL2\Tests;
 
 use FFI\Headers\SDL2;
+use FFI\Headers\SDL2\Platform;
 use FFI\Headers\SDL2\Version;
 
 /**
@@ -24,10 +25,10 @@ final class ContentRenderingTestCase extends TestCase
      *
      * @dataProvider configDataProvider
      */
-    public function testRenderable(Version $version): void
+    public function testRenderable(Platform $platform, Version $version): void
     {
         $this->expectNotToPerformAssertions();
 
-        (string)SDL2::create($version);
+        (string)SDL2::create($platform, $version);
     }
 }

@@ -12,9 +12,11 @@ declare(strict_types=1);
 namespace FFI\Headers;
 
 use FFI\Contracts\Headers\HeaderInterface;
+use FFI\Contracts\Preprocessor\Exception\DirectiveDefinitionExceptionInterface;
 use FFI\Contracts\Preprocessor\Exception\PreprocessorExceptionInterface;
 use FFI\Contracts\Preprocessor\PreprocessorInterface;
 use FFI\Headers\SDL2\HeadersDownloader;
+use FFI\Headers\SDL2\Platform;
 use FFI\Headers\SDL2\Version;
 use FFI\Headers\SDL2\VersionInterface;
 use FFI\Preprocessor\Preprocessor;
@@ -25,6 +27,38 @@ class SDL2 implements HeaderInterface
      * @var non-empty-string
      */
     private const HEADERS_DIRECTORY = __DIR__ . '/../resources/headers';
+
+    /**
+     * @var non-empty-string
+     */
+    private const SDLINC_H = <<<'CPP'
+    #ifndef SDL_stdinc_h_
+        #define SDL_stdinc_h_
+        typedef unsigned short wchar_t;
+
+        typedef enum {
+            SDL_FALSE = 0,
+            SDL_TRUE = 1
+        } SDL_bool;
+
+        typedef int8_t Sint8;
+        typedef uint8_t Uint8;
+        typedef int16_t Sint16;
+        typedef uint16_t Uint16;
+        typedef int32_t Sint32;
+        typedef uint32_t Uint32;
+        typedef int64_t Sint64;
+        typedef uint64_t Uint64;
+
+        #define SDL_PRINTF_FORMAT_STRING
+        #define SDL_SCANF_FORMAT_STRING
+        #define SDL_PRINTF_VARARG_FUNC(x)
+
+        #define SDL_FOURCC(A, B, C, D) (A << 0) | (B << 8) | (C << 16) | (D << 24)
+        #define SDL_COMPILE_TIME_ASSERT(name, x) typedef int SDL_compile_time_assert_##name_stub
+    #endif
+    CPP;
+
 
     /**
      * @param PreprocessorInterface $pre
@@ -60,11 +94,14 @@ class SDL2 implements HeaderInterface
     }
 
     /**
+     * @param Platform|null $platform
      * @param VersionInterface|non-empty-string $version
      * @param PreprocessorInterface $pre
      * @return self
+     * @throws DirectiveDefinitionExceptionInterface
      */
     public static function create(
+        Platform $platform = null,
         VersionInterface|string $version = Version::LATEST,
         PreprocessorInterface $pre = new Preprocessor(),
     ): self {
@@ -74,33 +111,16 @@ class SDL2 implements HeaderInterface
         $pre->define('DECLSPEC', '');
 
         // Remove stdinc and platform headers
-        $pre->add('SDL_stdinc.h', <<<'CPP'
-        #ifndef SDL_stdinc_h_
-            #define SDL_stdinc_h_
-            typedef unsigned short wchar_t;
+        $pre->add('SDL_stdinc.h', self::SDLINC_H);
 
-            typedef enum {
-                SDL_FALSE = 0,
-                SDL_TRUE = 1
-            } SDL_bool;
-
-            typedef int8_t Sint8;
-            typedef uint8_t Uint8;
-            typedef int16_t Sint16;
-            typedef uint16_t Uint16;
-            typedef int32_t Sint32;
-            typedef uint32_t Uint32;
-            typedef int64_t Sint64;
-            typedef uint64_t Uint64;
-
-            #define SDL_PRINTF_FORMAT_STRING
-            #define SDL_SCANF_FORMAT_STRING
-            #define SDL_PRINTF_VARARG_FUNC(x)
-
-            #define SDL_FOURCC(A, B, C, D) (A << 0) | (B << 8) | (C << 16) | (D << 24)
-            #define SDL_COMPILE_TIME_ASSERT(name, x) typedef int SDL_compile_time_assert_##name_stub
-        #endif
-        CPP);
+        switch ($platform) {
+            case Platform::WINDOWS:
+                $pre->define('__WIN32__');
+                $pre->define('__stdcall');
+                $pre->define('__cdecl');
+                $pre->add('process.h', '');
+                break;
+        }
 
         if (!$version instanceof VersionInterface) {
             $version = Version::create($version);

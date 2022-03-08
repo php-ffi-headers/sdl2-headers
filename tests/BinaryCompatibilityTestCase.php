@@ -13,6 +13,7 @@ namespace FFI\Headers\SDL2\Tests;
 
 use FFI\Env\Runtime;
 use FFI\Headers\SDL2;
+use FFI\Headers\SDL2\Platform;
 use FFI\Headers\SDL2\Version;
 use SebastianBergmann\CodeCoverage\ParserException;
 
@@ -88,13 +89,12 @@ class BinaryCompatibilityTestCase extends TestCase
 
         $binary = $this->getWindowsBinary();
 
+        $headers = (string)SDL2::create(Platform::WINDOWS, $version);
+
         try {
-            \FFI::cdef((string)SDL2::create($version), $binary);
+            \FFI::cdef($headers, $binary);
         } catch (\FFI\ParserException $e) {
-            \preg_match('/at line (\d+)/isum', $e->getMessage(), $out);
-            $line = (int)($out[1] ?? 0);
-            $lines = \explode("\n", (string)SDL2::create($version));
-            print_r(\array_slice($lines, $line - 3, 5));
+            $this->dumpExceptionInfo($e, $headers);
 
             throw $e;
         }
@@ -103,13 +103,19 @@ class BinaryCompatibilityTestCase extends TestCase
     /**
      * @dataProvider configDataProvider
      */
-    public function testCompilation(Version $version): void
+    public function testCompilation(Platform $platform, Version $version): void
     {
+        $headers = (string)SDL2::create($platform, $version);
+
         try {
-            \FFI::cdef((string)SDL2::create($version));
+            \FFI::cdef($headers);
             $this->expectNotToPerformAssertions();
         } catch (\FFI\Exception $e) {
             $this->assertStringStartsWith('Failed resolving C function', $e->getMessage());
+
+            if ($e instanceof \FFI\ParserException) {
+                $this->dumpExceptionInfo($e, $headers);
+            }
         }
     }
 }
