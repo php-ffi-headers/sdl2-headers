@@ -19,6 +19,7 @@
     ],
     "require": {
         "php": "^8.1",
+        "ext-phar": "*",
         "ffi/preprocessor": "^0.2|^1.0",
         "ffi-libs/headers-contracts": "^1.0"
     },
@@ -28,11 +29,10 @@
         }
     },
     "require-dev": {
-        "ext-phar": "*",
         "ffi/env": "^0.1|^1.0",
         "ffi/location": "^0.1|^1.0",
-        "vimeo/psalm": "^4.22",
-        "phpunit/phpunit": "^9.5"
+        "vimeo/psalm": "^4.22.0",
+        "phpunit/phpunit": "^9.5.15"
     },
     "autoload-dev": {
         "psr-4": {
