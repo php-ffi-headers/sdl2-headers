@@ -39,9 +39,6 @@
             "FFI\\Headers\\SDL2\\Tests\\": "tests"
         }
     },
-    "conflict": {
-        "phpunit/phpunit": "9.5.17"
-    },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
