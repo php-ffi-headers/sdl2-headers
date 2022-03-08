@@ -14,4 +14,7 @@ namespace FFI\Headers\SDL2;
 enum Platform
 {
     case WINDOWS;
+    case LINUX;
+    case DARWIN;
+    case FREEBSD;
 }

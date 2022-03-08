@@ -50,6 +50,18 @@ class SDL2 implements HeaderInterface
         typedef int64_t Sint64;
         typedef uint64_t Uint64;
 
+        // From WinGW 5.1
+        typedef struct _iobuf {
+            char*   _ptr;
+            int _cnt;
+            char*   _base;
+            int _flag;
+            int _file;
+            int _charbuf;
+            int _bufsiz;
+            char*   _tmpfname;
+        } FILE;
+
         #define SDL_PRINTF_FORMAT_STRING
         #define SDL_SCANF_FORMAT_STRING
         #define SDL_PRINTF_VARARG_FUNC(x)
@@ -115,10 +127,25 @@ class SDL2 implements HeaderInterface
 
         switch ($platform) {
             case Platform::WINDOWS:
-                $pre->define('__WIN32__');
+                $pre->define('__WIN32__', '1');
                 $pre->define('__stdcall');
                 $pre->define('__cdecl');
                 $pre->add('process.h', '');
+                break;
+
+            case Platform::LINUX:
+                $pre->define('__LINUX__', '1');
+                break;
+
+            case Platform::DARWIN:
+                $pre->define('__APPLE__', '1');
+                $pre->add('AvailabilityMacros.h', '');
+                $pre->add('TargetConditionals.h', '');
+                $pre->add('signal.h', '');
+                break;
+
+            case Platform::FREEBSD:
+                $pre->define('__FREEBSD__', '1');
                 break;
         }
 
