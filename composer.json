@@ -1,0 +1,62 @@
+{
+    "name": "ffi-libs/sdl2-headers",
+    "type": "library",
+    "description": "PHP FFI SDL2 Headers",
+    "license": "MIT",
+    "keywords": ["ffi", "headers", "sdl2", "sdl", "c", "windows", "macos", "linux", "unix", "opengl", "vulkan", "opengl-es"],
+    "support": {
+        "source": "https://github.com/php-ffi-libs/sdl2-headers",
+        "issues": "https://github.com/php-ffi-libs/sdl2-headers/issues",
+        "docs": "https://github.com/php-ffi-libs/sdl2-headers/blob/master/README.md"
+    },
+    "authors": [
+        {
+            "name": "Nesmeyanov Kirill",
+            "email": "nesk@xakep.ru",
+            "homepage": "https://serafimarts.ru",
+            "role": "maintainer"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "ffi/preprocessor": "^0.2|^1.0",
+        "ffi-libs/headers-contracts": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "FFI\\Headers\\": "src"
+        }
+    },
+    "require-dev": {
+        "ext-phar": "*",
+        "ffi/env": "^0.1|^1.0",
+        "ffi/location": "^0.1|^1.0",
+        "vimeo/psalm": "^4.22",
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FFI\\Headers\\SDL2\\Tests\\": "tests"
+        }
+    },
+    "conflict": {
+        "phpunit/phpunit": "9.5.17"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "phing/phing-composer-configurator": false
+        }
+    },
+    "provide": {
+        "ffi-libs/headers-contracts-implementation": "^1.0"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
