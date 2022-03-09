@@ -15,7 +15,7 @@ use FFI\Env\Runtime;
 use FFI\Headers\SDL2;
 use FFI\Headers\SDL2\Platform;
 use FFI\Headers\SDL2\Version;
-use SebastianBergmann\CodeCoverage\ParserException;
+use FFI\Location\Locator;
 
 /**
  * @group binary-compatibility
@@ -63,6 +63,52 @@ class BinaryCompatibilityTestCase extends TestCase
         return self::WIN32_BINARY;
     }
 
+    protected function getLinuxBinary(): string
+    {
+        $binary = Locator::resolve('libSDL2-2.0.so.0');
+
+        if ($binary === null) {
+            $this->markTestSkipped('The [libsdl] library must be installed');
+        }
+
+        return (string)$binary;
+    }
+
+    protected function getDarwinBinary(): string
+    {
+        $binary = Locator::resolve('libSDL2-2.0.0.dylib');
+
+        if ($binary === null) {
+            $this->markTestSkipped('The [libsdl] library must be installed');
+        }
+
+        return (string)$binary;
+    }
+
+    protected function assertVersionCompare(Version $version, string $binary): void
+    {
+        $ffi = \FFI::cdef(<<<'CPP'
+        typedef struct SDL_version {
+            uint8_t major;
+            uint8_t minor;
+            uint8_t patch;
+        } SDL_version;
+
+        extern void SDL_GetVersion(SDL_version *ver);
+        CPP, $binary);
+
+        $ver = $ffi->new('SDL_version');
+        $ffi->SDL_GetVersion(\FFI::addr($ver));
+        $actual = \sprintf('%d.%d.%d', $ver->major, $ver->minor, $ver->patch);
+
+        if (\version_compare($version->toString(), $actual, '>')) {
+            $message = 'Unable to check compatibility because the installed version of the '
+                . 'library (v%s) is lower than the tested headers (v%s)';
+
+            $this->markTestSkipped(\sprintf($message, $actual, $version->toString()));
+        }
+    }
+
     /**
      * @return array<array{Version}>
      */
@@ -79,7 +125,6 @@ class BinaryCompatibilityTestCase extends TestCase
 
     /**
      * @requires OSFAMILY Windows
-     * @requires extension phar
      *
      * @dataProvider versionsDataProvider
      */
@@ -89,7 +134,54 @@ class BinaryCompatibilityTestCase extends TestCase
 
         $binary = $this->getWindowsBinary();
 
+        $this->assertVersionCompare($version, $binary);
         $headers = (string)SDL2::create(Platform::WINDOWS, $version);
+
+        try {
+            \FFI::cdef($headers, $binary);
+        } catch (\FFI\ParserException $e) {
+            $this->dumpExceptionInfo($e, $headers);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @requires OSFAMILY Linux
+     *
+     * @dataProvider versionsDataProvider
+     */
+    public function testLinuxPlatformWithoutContext(Version $version): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $binary = $this->getLinuxBinary();
+
+        $this->assertVersionCompare($version, $binary);
+        $headers = (string)SDL2::create(Platform::LINUX, $version);
+
+        try {
+            \FFI::cdef($headers, $binary);
+        } catch (\FFI\ParserException $e) {
+            $this->dumpExceptionInfo($e, $headers);
+
+            throw $e;
+        }
+    }
+
+    /**
+     * @requires OSFAMILY Darwin
+     *
+     * @dataProvider versionsDataProvider
+     */
+    public function testDarwinPlatformWithoutContext(Version $version): void
+    {
+        $this->expectNotToPerformAssertions();
+
+        $binary = $this->getLinuxBinary();
+
+        $this->assertVersionCompare($version, $binary);
+        $headers = (string)SDL2::create(Platform::DARWIN, $version);
 
         try {
             \FFI::cdef($headers, $binary);
