@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/php-ffi-libs/sdl2-headers/actions"><img src="https://github.com/php-ffi-libs/glfw3-headers/workflows/build/badge.svg"></a>
+    <a href="https://github.com/php-ffi-libs/sdl2-headers/actions"><img src="https://github.com/php-ffi-libs/sdl2-headers/workflows/build/badge.svg"></a>
     <a href="https://packagist.org/packages/ffi-libs/sdl2-headers"><img src="https://img.shields.io/badge/PHP-8.1.0-ff0140.svg"></a>
     <a href="https://packagist.org/packages/ffi-libs/sdl2-headers"><img src="https://img.shields.io/badge/SDL2-2.0.20-cc3c20.svg"></a>
     <a href="https://packagist.org/packages/ffi-libs/sdl2-headers"><img src="https://poser.pugx.org/ffi-libs/sdl2-headers/version" alt="Latest Stable Version"></a>
