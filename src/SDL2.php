@@ -18,7 +18,7 @@ use FFI\Contracts\Preprocessor\PreprocessorInterface;
 use FFI\Headers\SDL2\HeadersDownloader;
 use FFI\Headers\SDL2\Platform;
 use FFI\Headers\SDL2\Version;
-use FFI\Headers\SDL2\VersionInterface;
+use FFI\Contracts\Headers\VersionInterface;
 use FFI\Preprocessor\Preprocessor;
 
 class SDL2 implements HeaderInterface
