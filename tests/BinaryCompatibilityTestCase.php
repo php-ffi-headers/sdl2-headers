@@ -49,7 +49,7 @@ class BinaryCompatibilityTestCase extends TestCase
      * @requires OSFAMILY Windows
      * @dataProvider versionsDataProvider
      */
-    public function testWin32PlatformWithoutContext(Version $version): void
+    public function testWindowsBinaryCompatibility(Version $version): void
     {
         if (!\is_file($binary = __DIR__ . '/storage/SDL2.dll')) {
             Downloader::zip('https://www.libsdl.org/release/SDL2-%s-win32-x64.zip', [
@@ -66,7 +66,7 @@ class BinaryCompatibilityTestCase extends TestCase
      * @requires OSFAMILY Linux
      * @dataProvider versionsDataProvider
      */
-    public function testLinuxPlatformWithoutContext(Version $version): void
+    public function testLinuxBinaryCompatibility(Version $version): void
     {
         if (($binary = Locator::resolve('libSDL2-2.0.so.0')) === null) {
             $this->markTestSkipped('The [libsdl] library must be installed');
@@ -80,7 +80,7 @@ class BinaryCompatibilityTestCase extends TestCase
      * @requires OSFAMILY Darwin
      * @dataProvider versionsDataProvider
      */
-    public function testDarwinPlatformWithoutContext(Version $version): void
+    public function testDarwinBinaryCompatibility(Version $version): void
     {
         if (($binary = Locator::resolve('libSDL2-2.0.0.dylib')) === null) {
             $this->markTestSkipped('The [libsdl] library must be installed');
