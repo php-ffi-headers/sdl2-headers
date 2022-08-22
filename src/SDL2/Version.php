@@ -37,8 +37,9 @@ enum Version: string implements ComparableInterface
     case V2_0_18 = '2.0.18';
     case V2_0_20 = '2.0.20';
     case V2_0_22 = '2.0.22';
+    case V2_24_0 = '2.24.0';
 
-    public const LATEST = self::V2_0_22;
+    public const LATEST = self::V2_24_0;
 
     /**
      * @param non-empty-string $version

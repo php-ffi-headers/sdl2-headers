@@ -121,6 +121,7 @@ class SDL2 implements HeaderInterface
 
         $pre->define('WINAPI_FAMILY_PARTITION', static fn (string $type) => 0);
         $pre->define('DECLSPEC', '');
+        $pre->define('_SDL_HAS_BUILTIN', static fn(string $arg) => 0);
 
         // Remove stdinc and platform headers
         $pre->add('SDL_stdinc.h', self::SDLINC_H);
